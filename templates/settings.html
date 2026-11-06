@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block page_heading %}Settings{% endblock %}
+{% block content %}
+<div class="page-intro"><h2>Dashboard Settings</h2><p>Configure the demonstration alert rule for this running application session.</p></div>
+<div class="content-card form-card"><div class="section-heading"><div><h2>High-usage threshold</h2><p>Alert when a meter's recorded cumulative-reading range exceeds this value.</p></div></div>
+<form method="POST" class="reading-form"><div class="form-field"><label for="alert_threshold">Threshold (kWh)</label><input type="number" id="alert_threshold" name="alert_threshold" min="0.01" step="any" value="{{ alert_threshold }}" required></div><button class="primary-button" type="submit">Save threshold</button></form>
+<p class="help-note">This setting is held in memory and resets when the Flask process restarts. It is for demonstration purposes, not a utility-approved threshold.</p></div>
+{% endblock %}

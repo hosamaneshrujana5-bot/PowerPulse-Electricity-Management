@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Consumers & Meters{% endblock %}
+{% block page_heading %}Consumers & Meters{% endblock %}
+{% block content %}
+<div class="page-intro"><h2>Consumer Directory</h2><p>View registered consumers, regions and linked meter details.</p></div>
+<div class="stats-grid two-stats"><article class="stat-card"><div class="stat-top"><span>Total Consumers</span><span class="stat-icon teal">♙</span></div><h2>{{ total_consumers }}</h2></article><article class="stat-card"><div class="stat-top"><span>Registered Meters</span><span class="stat-icon blue">▤</span></div><h2>{{ total_meters }}</h2></article></div>
+<div class="content-card"><div class="section-heading"><div><h2>Consumers and Meters</h2><p>Registered consumer and meter records</p></div></div><div class="table-container"><table><thead><tr><th>Consumer ID</th><th>Consumer Type</th><th>Region</th><th>Meter ID</th><th>Meter Code</th></tr></thead><tbody>{% for c in consumers %}<tr><td>{{ c.consumer_id }}</td><td>{{ c.consumer_type }}</td><td>{{ c.region }}</td><td>{{ c.meter_id if c.meter_id is not none else "-" }}</td><td>{{ c.meter_code or "-" }}</td></tr>{% else %}<tr><td colspan="5">No consumer records found.</td></tr>{% endfor %}</tbody></table></div></div>
+{% endblock %}

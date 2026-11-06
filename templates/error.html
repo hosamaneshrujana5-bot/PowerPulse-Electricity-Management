@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Unable to load{% endblock %}
+{% block page_heading %}Unable to load page{% endblock %}
+{% block content %}
+<div class="content-card"><div class="empty-state"><div class="empty-icon">!</div><h2>Something went wrong</h2><p>{{ error_message }}</p><p class="help-note">Open the VS Code terminal for the technical error details.</p><a class="primary-button link-button" href="{{ url_for('dashboard') }}">Return to dashboard</a></div></div>
+{% endblock %}

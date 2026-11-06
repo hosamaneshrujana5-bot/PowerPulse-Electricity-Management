@@ -1,0 +1,311 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Electricity Consumption Monitoring Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="container">
+
+        <!-- Header -->
+        <header>
+            <h1>Electricity Consumption Monitoring Dashboard</h1>
+            <p>Monitor electricity usage and identify unusual consumption.</p>
+        </header>
+
+        <!-- Dashboard Summary Cards -->
+        <section class="dashboard-cards">
+
+            <div class="card">
+                <h3>Total Consumers</h3>
+                <p>{{ total_consumers }}</p>
+            </div>
+
+            <div class="card">
+                <h3>Registered Meters</h3>
+                <p>{{ total_meters }}</p>
+            </div>
+
+            <div class="card">
+                <h3>Recorded Readings</h3>
+                <p>{{ total_readings }}</p>
+            </div>
+
+            <div class="card">
+                <h3>Total Consumption</h3>
+                <p>{{ "%.2f"|format(total_consumption) }} kWh</p>
+            </div>
+
+        </section>
+
+        <!-- Success and Error Messages -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="message">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Electricity Consumption Chart -->
+        <section class="section">
+            <h2>Electricity Consumption Trend</h2>
+
+            <div class="chart-container">
+                <canvas id="usageChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Add Meter Reading -->
+        <section class="section">
+            <h2>Add Meter Reading</h2>
+
+            <form action="{{ url_for('add_reading') }}"
+                  method="POST"
+                  class="reading-form">
+
+                <label for="meter_id">Select Meter</label>
+
+                <select id="meter_id" name="meter_id" required>
+                    <option value="">Select a meter</option>
+
+                    {% for meter in meters_list %}
+                        <option value="{{ meter.meter_id }}">
+                            {{ meter.meter_code }} (ID: {{ meter.meter_id }})
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <label for="reading_date">Reading Date</label>
+
+                <input
+                    type="date"
+                    id="reading_date"
+                    name="reading_date"
+                    value="{{ today }}"
+                    max="{{ today }}"
+                    required
+                >
+
+                <label for="cumulative_kwh">
+                    Cumulative Meter Reading (kWh)
+                </label>
+
+                <input
+                    type="number"
+                    id="cumulative_kwh"
+                    name="cumulative_kwh"
+                    min="0"
+                    step="any"
+                    placeholder="Enter cumulative reading"
+                    required
+                >
+
+                <button type="submit">Add Reading</button>
+
+            </form>
+        </section>
+
+        <!-- Consumers and Meters -->
+        <section class="section">
+            <h2>Consumers and Meters</h2>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Consumer ID</th>
+                            <th>Consumer Type</th>
+                            <th>Region</th>
+                            <th>Meter ID</th>
+                            <th>Meter Code</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for c in consumers %}
+                            <tr>
+                                <td>{{ c.consumer_id }}</td>
+                                <td>{{ c.consumer_type }}</td>
+                                <td>{{ c.region }}</td>
+                                <td>
+                                    {{ c.meter_id if c.meter_id is not none else "-" }}
+                                </td>
+                                <td>
+                                    {{ c.meter_code if c.meter_code else "-" }}
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="5">No consumers found.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Recent Meter Readings -->
+        <section class="section">
+            <h2>Recent Meter Readings</h2>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Reading ID</th>
+                            <th>Meter Code</th>
+                            <th>Reading Date</th>
+                            <th>Cumulative Reading (kWh)</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for r in readings %}
+                            <tr>
+                                <td>{{ r.reading_id }}</td>
+                                <td>{{ r.meter_code }}</td>
+                                <td>{{ r.reading_date }}</td>
+                                <td>{{ "%.2f"|format(r.cumulative_kwh) }}</td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="4">No readings found.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Potential High-Usage Alerts -->
+        <section class="section">
+            <h2>Potential High-Usage Alerts</h2>
+
+            {% if alerts %}
+                <p>
+                    The following meters have exceeded the configured
+                    usage threshold. Review their readings.
+                </p>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Consumer ID</th>
+                                <th>Consumer Type</th>
+                                <th>Region</th>
+                                <th>Meter Code</th>
+                                <th>Usage Range (kWh)</th>
+                                <th>Alert Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for alert in alerts %}
+                                <tr>
+                                    <td>{{ alert.consumer_id }}</td>
+                                    <td>{{ alert.consumer_type }}</td>
+                                    <td>{{ alert.region }}</td>
+                                    <td>{{ alert.meter_code }}</td>
+                                    <td>
+                                        {{ "%.2f"|format(alert.meter_range) }}
+                                    </td>
+                                    <td>
+                                        <span class="alert-badge">
+                                            ⚠ HIGH USAGE DETECTED
+                                        </span>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            {% else %}
+                <div class="no-alerts">
+                    <strong>✓ All Clear</strong>
+                    <p>
+                        No meters currently exceed the configured
+                        high-usage threshold.
+                    </p>
+                </div>
+            {% endif %}
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p>Electricity Consumption Monitoring Dashboard</p>
+            <p>Monitor usage. Identify unusual consumption. Save energy.</p>
+        </footer>
+
+    </div>
+
+    <!-- Chart.js Configuration -->
+    <script>
+        const labels = JSON.parse('{{ chart_labels | safe }}');
+        const values = JSON.parse('{{ chart_values | safe }}');
+
+        const chartCanvas = document.getElementById("usageChart");
+
+        new Chart(chartCanvas, {
+            type: "line",
+
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Electricity Consumption (kWh)",
+                    data: values,
+                    borderColor: "#087f8c",
+                    backgroundColor: "rgba(8, 127, 140, 0.12)",
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    fill: true,
+                    tension: 0.25
+                }]
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                },
+
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: "Consumption (kWh)"
+                        }
+                    },
+
+                    x: {
+                        title: {
+                            display: true,
+                            text: "Reading Date and Meter"
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>

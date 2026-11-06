@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Usage Alerts{% endblock %}
+{% block page_heading %}Usage Alerts{% endblock %}
+{% block content %}
+<div class="page-intro"><h2>Potential High-Usage Alerts</h2><p>Review meters whose recorded cumulative-reading range exceeds the configured threshold.</p></div>
+<div class="alert-rule-banner"><span class="alert-symbol">⚠</span><div><strong>Current demonstration threshold: over {{ alert_threshold|int }} kWh</strong><p>The rule compares the maximum and minimum cumulative readings for each meter. It is not an official utility threshold.</p></div></div>
+<div class="content-card">{% if alerts %}<div class="section-heading"><div><h2>Review required</h2><p>{{ alerts|length }} meter(s) match the configured rule.</p></div><span class="status-pill status-warning">Attention required</span></div><div class="table-container"><table><thead><tr><th>Consumer ID</th><th>Consumer Type</th><th>Region</th><th>Meter Code</th><th>Usage Range</th><th>Status</th></tr></thead><tbody>{% for alert in alerts %}<tr><td>{{ alert.consumer_id }}</td><td>{{ alert.consumer_type }}</td><td>{{ alert.region }}</td><td>{{ alert.meter_code }}</td><td><strong>{{ "%.2f"|format(alert.meter_range) }} kWh</strong></td><td><span class="status-pill status-warning">⚠ High usage</span></td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="empty-state"><div class="empty-icon">✓</div><h2>No threshold alerts</h2><p>No meter currently exceeds the configured usage-range rule.</p></div>{% endif %}</div>
+{% endblock %}

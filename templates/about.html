@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}About{% endblock %}
+{% block page_heading %}About PowerPulse{% endblock %}
+{% block content %}
+<div class="page-intro"><h2>About this project</h2><p>An academic prototype for organizing and analyzing electricity meter readings.</p></div>
+<div class="content-card"><h2>Project purpose</h2><p>PowerPulse presents consumer and meter records, calculates consumption from cumulative readings, and highlights meters that meet a configurable demonstration rule.</p></div>
+<div class="stats-grid two-stats">
+<div class="content-card"><h2>Technology stack</h2><ul class="about-list"><li>Python and Flask — web routes and application logic</li><li>MySQL — consumers, meters and readings</li><li>HTML and CSS — interface and responsive layout</li><li>Chart.js — consumption visualizations</li></ul></div>
+<div class="content-card"><h2>Important limitations</h2><ul class="about-list"><li>Uses data stored in the local MySQL database.</li><li>Does not connect to real utility meters or provider APIs.</li><li>High-usage alerts use a demonstration threshold.</li><li>Charts only represent consumption that can be calculated from stored readings.</li></ul></div>
+</div>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+{% block page_heading %}Reports{% endblock %}
+{% block content %}
+<div class="page-intro"><h2>Reports & Export</h2><p>Review available records and export the current reading history.</p></div>
+<div class="stats-grid two-stats"><article class="stat-card"><div class="stat-top"><span>Reading records available</span><span class="stat-icon blue">▤</span></div><h2>{{ total_readings }}</h2><p>Stored meter reading entries</p></article><article class="stat-card"><div class="stat-top"><span>Total calculated consumption</span><span class="stat-icon amber">⚡</span></div><h2>{{ "%.2f"|format(total_consumption) }} <small>kWh</small></h2><p>Sum of reading differences</p></article></div>
+<div class="content-card"><div class="section-heading"><div><h2>Reading history export</h2><p>Download up to the latest 100 stored meter readings as a CSV file.</p></div></div><a class="primary-button link-button" href="{{ url_for('export_csv') }}">↓ Download CSV report</a><p class="help-note">The export contains reading ID, meter ID, meter code, reading date and cumulative kWh. It does not include live provider data.</p></div>
+<div class="content-card"><div class="section-heading"><div><h2>Report preview</h2><p>Latest recorded entries</p></div></div><div class="table-container"><table><thead><tr><th>Reading ID</th><th>Meter</th><th>Date</th><th>Cumulative reading</th></tr></thead><tbody>{% for r in readings[:10] %}<tr><td>#{{ r.reading_id }}</td><td>{{ r.meter_code }}</td><td>{{ r.reading_date }}</td><td>{{ "%.2f"|format(r.cumulative_kwh) }} kWh</td></tr>{% else %}<tr><td colspan="4">No records available.</td></tr>{% endfor %}</tbody></table></div></div>
+{% endblock %}

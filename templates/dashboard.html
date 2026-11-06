@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_heading %}Dashboard{% endblock %}
+{% block content %}
+<section class="welcome-banner">
+    <div><p class="eyebrow light">MONITORING OVERVIEW</p><h2>Welcome to PowerPulse ⚡</h2><p>Monitor, analyze and track electricity consumption efficiently.</p></div>
+    <div class="banner-icon">⚡</div>
+</section>
+<div class="stats-grid">
+    <article class="stat-card"><div class="stat-top"><span>Total Consumers</span><span class="stat-icon teal">♙</span></div><h2>{{ total_consumers }}</h2><p>Registered consumers</p></article>
+    <article class="stat-card"><div class="stat-top"><span>Total Meters</span><span class="stat-icon blue">◉</span></div><h2>{{ total_meters }}</h2><p>Registered meters</p></article>
+    <article class="stat-card"><div class="stat-top"><span>Total Readings</span><span class="stat-icon purple">▤</span></div><h2>{{ total_readings }}</h2><p>Recorded meter readings</p></article>
+    <article class="stat-card"><div class="stat-top"><span>Total Consumption</span><span class="stat-icon amber">⚡</span></div><h2>{{ "%.2f"|format(total_consumption) }}</h2><p>kWh calculated from readings</p></article>
+</div>
+<div class="content-card">
+    <div class="section-heading"><div><h2>Electricity Consumption Trend</h2><p>Calculated consumption by date and meter</p></div><a class="secondary-button" href="{{ url_for('consumption') }}">View analysis →</a></div>
+    <div class="chart-container"><canvas id="overviewChart"></canvas></div>
+</div>
+<div class="two-column">
+    <div class="content-card">
+        <div class="section-heading"><div><h2>Recent Meter Readings</h2><p>Latest stored values</p></div><a class="text-button" href="{{ url_for('readings_page') }}">View all →</a></div>
+        <div class="table-container"><table><thead><tr><th>Meter</th><th>Date</th><th>Cumulative reading</th></tr></thead><tbody>
+        {% for r in recent_readings %}<tr><td>{{ r.meter_code }}</td><td>{{ r.reading_date }}</td><td>{{ "%.2f"|format(r.cumulative_kwh) }} kWh</td></tr>{% else %}<tr><td colspan="3">No readings available.</td></tr>{% endfor %}
+        </tbody></table></div>
+    </div>
+    <div class="content-card">
+        <div class="section-heading"><div><h2>Usage Alert Summary</h2><p>Configured demonstration rule</p></div><a class="text-button" href="{{ url_for('alerts_page') }}">View alerts →</a></div>
+        {% if alerts %}<div class="alert-summary warning-summary"><span class="alert-symbol">⚠</span><div><strong>{{ alerts|length }} potential high-usage alert(s)</strong><p>Review affected meters and their recorded usage ranges.</p></div></div>
+        {% else %}<div class="alert-summary clear-summary"><span class="alert-symbol">✓</span><div><strong>No threshold alerts</strong><p>No meter currently meets the configured usage-range rule.</p></div></div>{% endif %}
+        <p class="help-note">This checks stored sample readings; it is not live utility monitoring.</p>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const labels = JSON.parse('{{ chart_labels | tojson | safe }}');
+const values = JSON.parse('{{ chart_values | tojson | safe }}');
+new Chart(document.getElementById("overviewChart"), {
+  type: "line",
+  data: {labels, datasets: [{label:"Consumption (kWh)", data:values, borderColor:"#1677e8", backgroundColor:"rgba(22,119,232,.12)", borderWidth:3, pointRadius:4, fill:true, tension:.3}]},
+  options: {responsive:true, maintainAspectRatio:false, plugins:{legend:{display:true}}, scales:{y:{beginAtZero:true,title:{display:true,text:"kWh"}},x:{grid:{display:false}}}}
+});
+</script>
+{% endblock %}

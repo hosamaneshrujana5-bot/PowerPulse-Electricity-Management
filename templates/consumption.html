@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Consumption{% endblock %}
+{% block page_heading %}Consumption Analysis{% endblock %}
+{% block content %}
+<div class="page-intro"><h2>Electricity Consumption</h2><p>Explore calculated usage trends and compare consumption across meters.</p></div>
+<div class="stats-grid two-stats">
+  <article class="stat-card"><div class="stat-top"><span>Total calculated consumption</span><span class="stat-icon amber">⚡</span></div><h2>{{ "%.2f"|format(total_consumption) }} <small>kWh</small></h2><p>Sum of recorded reading differences</p></article>
+  <article class="stat-card"><div class="stat-top"><span>Meters with readings</span><span class="stat-icon teal">▤</span></div><h2>{{ meter_consumption|length }}</h2><p>Meters with calculable consumption</p></article>
+</div>
+<div class="content-card"><div class="section-heading"><div><h2>Consumption Trend</h2><p>By reading date and meter ID</p></div></div><div class="chart-container large-chart"><canvas id="trendChart"></canvas></div></div>
+<div class="content-card"><div class="section-heading"><div><h2>Meter-wise Consumption</h2><p>Total calculated usage by meter</p></div></div><div class="chart-container large-chart"><canvas id="meterChart"></canvas></div><div class="table-container"><table><thead><tr><th>Meter ID</th><th>Total consumption</th></tr></thead><tbody>{% for row in meter_consumption %}<tr><td>{{ row.meter_id }}</td><td>{{ "%.2f"|format(row.total_usage or 0) }} kWh</td></tr>{% else %}<tr><td colspan="2">No consumption data available.</td></tr>{% endfor %}</tbody></table></div></div>
+<div class="content-card"><h2>Calculation method</h2><p class="explanation">Consumption between consecutive readings = current cumulative reading − previous cumulative reading for the same meter.</p><p class="help-note">This version displays the recorded trend and meter-wise totals. It does not yet calculate separate weekly and monthly summaries.</p></div>
+{% endblock %}
+{% block scripts %}
+<script>
+const labels = {{ chart_labels|safe }};
+const values = {{ chart_values|safe }};
+const meterLabels = {{ meter_labels|safe }};
+const meterValues = {{ meter_values|safe }};
+new Chart(document.getElementById("trendChart"), {type:"line",data:{labels,datasets:[{label:"Consumption (kWh)",data:values,borderColor:"#1677e8",backgroundColor:"rgba(22,119,232,.12)",borderWidth:3,pointRadius:4,fill:true,tension:.3}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true},x:{grid:{display:false}}}}});
+new Chart(document.getElementById("meterChart"), {type:"doughnut",data:{labels:meterLabels.map(x=>"Meter "+x),datasets:[{data:meterValues,backgroundColor:["#3182f6","#22b88a","#ff9b37","#9363ee","#ed6ba5","#93a4b8"]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"right"}}}});
+</script>
+{% endblock %}

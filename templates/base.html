@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PowerPulse{% endblock %} | Electricity Monitoring</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="app-layout">
+    <aside class="sidebar">
+        <a class="brand" href="{{ url_for('dashboard') }}">
+            <span class="brand-icon">⚡</span>
+            <span>PowerPulse<small>ELECTRICITY ANALYSIS SYSTEM</small></span>
+        </a>
+        <p class="nav-heading">WORKSPACE</p>
+        <nav class="navigation">
+            <a class="nav-link {% if page == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}"><span>▦</span> Dashboard</a>
+            <a class="nav-link {% if page == 'consumption' %}active{% endif %}" href="{{ url_for('consumption') }}"><span>⌁</span> Consumption</a>
+            <a class="nav-link {% if page == 'consumers' %}active{% endif %}" href="{{ url_for('consumers_page') }}"><span>♙</span> Consumers &amp; Meters</a>
+            <a class="nav-link {% if page == 'readings' %}active{% endif %}" href="{{ url_for('readings_page') }}"><span>▤</span> Meter Readings</a>
+            <a class="nav-link {% if page == 'alerts' %}active{% endif %}" href="{{ url_for('alerts_page') }}"><span>♟</span> Usage Alerts {% if sidebar_alert_count %}<span class="nav-count">{{ sidebar_alert_count }}</span>{% endif %}</a>
+            <a class="nav-link {% if page == 'reports' %}active{% endif %}" href="{{ url_for('reports_page') }}"><span>▥</span> Reports</a>
+        </nav>
+        <p class="nav-heading secondary-heading">PREFERENCES</p>
+        <nav class="navigation">
+            <a class="nav-link {% if page == 'settings' %}active{% endif %}" href="{{ url_for('settings_page') }}"><span>⚙</span> Settings</a>
+            <a class="nav-link {% if page == 'about' %}active{% endif %}" href="{{ url_for('about_page') }}"><span>ⓘ</span> About</a>
+        </nav>
+        <div class="sidebar-bottom">
+            <div class="system-indicator"><span class="status-dot"></span><div><strong>Project environment</strong><small>Local database connection</small></div></div>
+            <p class="sidebar-note">Monitor usage. Identify unusual consumption. Save energy.</p>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">ENERGY MANAGEMENT</p>
+                <h1>{% block page_heading %}Dashboard{% endblock %}</h1>
+            </div>
+            <div class="topbar-right">
+                <span class="date-label">{{ today if today is defined else '' }}</span>
+                <span class="profile-icon">PP</span>
+            </div>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-stack">
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+
+        <footer class="footer">
+            <span>PowerPulse · Electricity Monitoring</span>
+            <span>Local academic prototype</span>
+        </footer>
+    </main>
+</div>
+{% block scripts %}{% endblock %}
+</body>
+</html>

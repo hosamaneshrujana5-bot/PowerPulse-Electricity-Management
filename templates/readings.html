@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Meter Readings{% endblock %}
+{% block page_heading %}Meter Readings{% endblock %}
+{% block content %}
+<div class="page-intro"><h2>Meter Readings</h2><p>Add a reading and review stored meter history.</p></div>
+<div class="content-card form-card"><div class="section-heading"><div><h2>Add a Meter Reading</h2><p>Select a registered meter and enter its cumulative reading.</p></div></div>
+<form action="{{ url_for('add_reading') }}" method="POST" class="reading-form"><div class="form-grid">
+<div class="form-field"><label for="meter_id">Registered meter</label><select id="meter_id" name="meter_id" required><option value="">Select a meter</option>{% for meter in meters_list %}<option value="{{ meter.meter_id }}">{{ meter.meter_code }} (ID: {{ meter.meter_id }})</option>{% endfor %}</select></div>
+<div class="form-field"><label for="reading_date">Reading date</label><input type="date" id="reading_date" name="reading_date" value="{{ today }}" max="{{ today }}" required></div>
+<div class="form-field full-field"><label for="cumulative_kwh">Cumulative reading (kWh)</label><input type="number" id="cumulative_kwh" name="cumulative_kwh" min="0" step="any" placeholder="e.g. 1250.75" required><small>Enter the meter's total reading, not just the latest period's usage.</small></div>
+</div><button type="submit" class="primary-button">＋ Save meter reading</button></form></div>
+<div class="content-card"><div class="section-heading"><div><h2>Reading History</h2><p>Latest readings first by date</p></div></div><div class="table-container"><table><thead><tr><th>Reading ID</th><th>Meter Code</th><th>Date</th><th>Cumulative Reading</th></tr></thead><tbody>{% for r in readings %}<tr><td>#{{ r.reading_id }}</td><td>{{ r.meter_code }}</td><td>{{ r.reading_date }}</td><td>{{ "%.2f"|format(r.cumulative_kwh) }} kWh</td></tr>{% else %}<tr><td colspan="4">No readings available.</td></tr>{% endfor %}</tbody></table></div></div>
+{% endblock %}
